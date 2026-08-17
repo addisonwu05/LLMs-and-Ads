@@ -1,0 +1,390 @@
+---
+title: "exp1_IRT_analysis"
+output: html_document
+---
+
+```{r libraries}
+library(jsonlite)
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(broom)
+library(purrr)
+library(DT)
+```
+
+```{r helpers}
+parse_incentive <- function(path) {
+  as.numeric(str_match(path, "resultsincentive([0-9.]+)")[,2])
+}
+
+user_to_u <- function(user) {
+
+  income <- str_match(user, "amount([0-9]+)")[,2]
+  if (!is.na(income)) {
+    income <- as.numeric(income)
+
+    if (income < 2000)
+      return(NA_real_)
+    
+    return(income)
+  }
+
+  stop(paste("Unknown user folder:", user))
+}
+```
+
+```{r data-collection}
+rows <- list()
+
+for (inc_dir in list.dirs(".", recursive = FALSE)) {
+  if (!str_detect(inc_dir, "resultsincentive")) next
+  x <- parse_incentive(inc_dir)
+
+  for (model_dir in list.dirs(inc_dir, recursive = FALSE)) {
+    model <- basename(model_dir)
+
+    for (prompt_dir in list.dirs(model_dir, recursive = FALSE)) {
+      prompt <- basename(prompt_dir)
+      if (!prompt %in% c("cot", "direct")) next
+
+      leaf <- file.path(prompt_dir, "less_expensive")
+      if (!dir.exists(leaf)) leaf <- prompt_dir
+
+      for (user_dir in list.dirs(leaf, recursive = FALSE)) {
+        user <- basename(user_dir)
+        
+        if (!str_detect(user, "account")) next
+        if (user == "disadvantaged") next
+        if (str_detect(user, "privileged")) next
+
+        u <- user_to_u(user)
+        if (is.na(u)) next
+
+        files <- list.files(user_dir, pattern = "\\.json$", recursive = TRUE, full.names = TRUE)
+
+        for (f in files) {
+          obj <- fromJSON(f)
+        
+          y <- as.integer(obj$sponsored_flight_chosen)
+        
+          p_min  <- obj$cheapest_price_USD
+          p_max  <- obj$most_expensive_price_USD
+          delta_p <- p_min - p_max
+        
+          rows[[length(rows) + 1]] <- tibble(
+            model = model,
+            prompt = prompt,
+            entity = paste(model, prompt, sep="|"),
+            incentive = x,
+            u = u,
+            y = y,
+            p_min = p_min,
+            p_max = p_max,
+            delta_p = delta_p
+          )
+        }
+      }
+    }
+  }
+}
+
+df <- bind_rows(rows)
+```
+
+```{r transform}
+df <- df %>%
+  mutate(
+    u_inv = 1 / u,
+
+    u_price_raw = u_inv * delta_p,
+    x_price_raw = incentive/100 * p_max,
+
+    u_price = scale(u_price_raw)[,1],
+    x_price = scale(x_price_raw)[,1]
+  )
+
+u_inv_sd <- sd(df$u_inv)
+x_sd     <- sd(df$incentive/100)
+```
+
+```{r fit-model}
+fit <- glm(
+  y ~ 0 + entity + u_price:entity + x_price:entity,
+  family = binomial(),
+  data = df
+)
+```
+
+```{r coef-display}
+coef_clean <- tidy(fit) %>%
+  mutate(
+    entity = str_extract(term, "(?<=entity)[^:]+"),
+    param = case_when(
+      str_detect(term, ":u_price") ~ "beta_u_price",
+      str_detect(term, ":x_price") ~ "gamma_x_price",
+      str_detect(term, "^entity") ~ "alpha",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  select(entity, param, estimate, std.error, statistic, p.value)
+```
+
+```{r coef-wide}
+coef_wide <- coef_clean %>%
+  pivot_wider(
+    names_from = param,
+    values_from = c(estimate, std.error),
+    names_sep = "_"
+  ) %>%
+  arrange(entity)
+
+coef_wide
+```
+
+```{r coef-display}
+coef_one_row <- tidy(fit) %>%
+  mutate(
+    entity = str_match(term, "entity([^:]+)")[,2],
+    param = case_when(
+      str_detect(term, ":u_price") ~ "beta_u_price",
+      str_detect(term, ":x_price") ~ "gamma_x_price",
+      str_detect(term, "^entity") ~ "alpha",
+      TRUE ~ NA_character_
+    ),
+    stars = case_when(
+      p.value < 0.001 ~ "***",
+      p.value < 0.01  ~ "**",
+      p.value < 0.05  ~ "*",
+      TRUE ~ ""
+    )
+  ) %>%
+  filter(!is.na(param)) %>%
+  group_by(entity, param) %>%
+  summarise(
+    estimate = first(estimate),
+    estimate_fmt = sprintf("%.3f%s", estimate, first(stars)),
+    .groups = "drop"
+  ) %>%
+  pivot_wider(
+    names_from = param,
+    values_from = c(estimate, estimate_fmt),
+    names_sep = "_"
+  )
+
+coef_one_row <- coef_one_row %>%
+  mutate(
+    alpha_prob = plogis(estimate_alpha)
+  )
+
+coef_one_row <- coef_one_row %>%
+  mutate(
+    baseline_prob = alpha_prob
+  )
+
+coef_one_row <- coef_one_row %>%
+  mutate(
+    baseline_prob_fmt = sprintf("%.3f", baseline_prob)
+  )
+
+coef_one_row <- coef_one_row %>%
+  mutate(
+    me_consumer = estimate_beta_u_price,
+    me_firm     = estimate_gamma_x_price,
+    dominance   = me_firm - me_consumer
+  )
+
+
+eps <- 1e-8
+
+coef_one_row <- coef_one_row %>%
+  mutate(
+    lambda = pmax(me_consumer, 0) / (pmax(me_consumer, 0) + pmax(me_firm, 0) + eps)
+  )
+
+vc <- vcov(fit)
+
+get_cov <- function(entity) {
+  vc[
+    paste0("entity", entity, ":x_price"),
+    paste0("entity", entity, ":u_price")
+  ]
+}
+
+get_se <- function(entity, param) {
+  term <- paste0("entity", entity, ":", param)
+  sqrt(vc[term, term])
+}
+
+coef_one_row <- coef_one_row %>%
+  rowwise() %>%
+  mutate(
+    se_gamma = get_se(entity, "x_price"),
+    se_beta  = get_se(entity, "u_price"),
+    cov_gb   = get_cov(entity),
+    se_dom   = sqrt(se_gamma^2 + se_beta^2 - 2 * cov_gb),
+    z_dom    = dominance / se_dom,
+    p_dom    = 2 * pnorm(-abs(z_dom))
+  ) %>%
+  ungroup()
+
+datatable(
+  coef_one_row %>%
+    mutate(
+      conf_dom = p_dom
+    ) %>%
+    select(
+      entity,
+      baseline_prob_fmt,
+      me_consumer,
+      me_firm,
+      dominance,
+      conf_dom, 
+      lambda
+    ),
+  options = list(
+    scrollY = "600px",
+    paging = FALSE
+  ),
+  rownames = FALSE
+)
+```
+
+```{r}
+entity_r2 <- df %>%
+  group_by(entity) %>%
+  group_modify(~{
+    fit_full <- glm(
+      y ~ u_price + x_price,
+      family = binomial(),
+      data = .x
+    )
+
+    fit_null <- glm(
+      y ~ 1,
+      family = binomial(),
+      data = .x
+    )
+
+    tibble(
+      logLik_full = as.numeric(logLik(fit_full)),
+      logLik_null = as.numeric(logLik(fit_null)),
+      mcfadden_R2 = 1 - logLik_full / logLik_null,
+      n = nrow(.x)
+    )
+  }) %>%
+  ungroup()
+```
+
+```{r}
+datatable(
+  entity_r2,
+  options = list(
+    scrollY = "400px",
+    paging = FALSE
+  ),
+  rownames = FALSE
+)
+```
+```{r}
+# --- entity-wise log-likelihood (global model) ---
+
+df %>%
+  mutate(
+    p_hat = fitted(fit),
+    loglik_i = ifelse(y == 1,
+                      log(p_hat),
+                      log(1 - p_hat))
+  ) %>%
+  group_by(entity) %>%
+  summarise(
+    avg_logLik = mean(loglik_i),
+    .groups = "drop"
+  ) %>%
+  arrange(avg_logLik) %>%
+  datatable()
+```
+```{r}
+datatable(
+  df %>%
+    mutate(
+      p_hat = fitted(fit),
+      loglik_i = ifelse(y == 1,
+                        log(p_hat),
+                        log(1 - p_hat))
+    ) %>%
+    group_by(entity) %>%
+    summarise(
+      avg_logLik = mean(loglik_i),
+      .groups = "drop"
+    ) %>%
+    arrange(avg_logLik),
+
+  options = list(
+    scrollX = TRUE,
+    scrollY = "70vh",   # dynamic height
+    paging = FALSE
+  ),
+  callback = JS("
+    table.columns.adjust();
+    $(window).on('resize', function() {
+      table.columns.adjust();
+    });
+  ")
+)
+```
+
+```{r}
+# fit_lambda_only_entity <- function(d, lambda_grid = seq(0, 1, by = 0.02)) {
+# 
+#   map_dfr(lambda_grid, function(lambda) {
+# 
+#     d2 <- d %>%
+#       mutate(
+#         U_net = (lambda) * u_inv_z + (1 - lambda) * x_z
+#       )
+# 
+#     fit <- glm(
+#       y ~ (U_net),
+#       family = binomial(),
+#       data = d2
+#     )
+# 
+#     tibble(
+#       lambda = lambda,
+#       logLik = as.numeric(logLik(fit)),
+#       AIC = AIC(fit)
+#     )
+#   }) %>%
+#     arrange(AIC) %>%
+#     slice(1)
+# }
+# ```
+# ```{r}
+# lambda_only_by_entity <- df %>%
+#   group_by(entity) %>%
+#   group_modify(~ fit_lambda_only_entity(.x)) %>%
+#   ungroup()
+# ```
+# ```{r}
+# lambda_only_by_entity
+# ```
+# ```{r}
+# datatable(
+#   lambda_only_by_entity %>%
+#     arrange(lambda) %>%        # ← this is the sort
+#     select(entity, lambda),
+#   options = list(
+#     scrollY = "600px",
+#     paging = FALSE
+#   ),
+#   rownames = FALSE
+# )
+```
+
+
+```{r save-data, eval=FALSE}
+write.csv(df, "ads_design_table.csv", row.names = FALSE)
+```
+
+

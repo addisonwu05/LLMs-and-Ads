@@ -1,0 +1,228 @@
+---
+title: "exp1_IRT_analysis_simplified_lambda"
+output: html_document
+---
+
+```{r libraries}
+library(jsonlite)
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(broom)
+library(purrr)
+library(DT)
+```
+
+```{r helpers}
+parse_incentive <- function(path) {
+  as.numeric(str_match(path, "resultsincentive([0-9.]+)")[,2])
+}
+
+user_to_u <- function(user) {
+
+  income <- str_match(user, "amount([0-9]+)")[,2]
+  if (!is.na(income)) {
+    income <- as.numeric(income)
+
+    if (income < 2000)
+      return(NA_real_)
+    
+    return(income)
+  }
+
+  stop(paste("Unknown user folder:", user))
+}
+```
+
+```{r data-collection}
+rows <- list()
+
+for (inc_dir in list.dirs(".", recursive = FALSE)) {
+  if (!str_detect(inc_dir, "resultsincentive")) next
+  x <- parse_incentive(inc_dir)
+
+  for (model_dir in list.dirs(inc_dir, recursive = FALSE)) {
+    model <- basename(model_dir)
+
+    for (prompt_dir in list.dirs(model_dir, recursive = FALSE)) {
+      prompt <- basename(prompt_dir)
+      if (!prompt %in% c("cot", "direct")) next
+
+      leaf <- file.path(prompt_dir, "less_expensive")
+      if (!dir.exists(leaf)) leaf <- prompt_dir
+
+      for (user_dir in list.dirs(leaf, recursive = FALSE)) {
+        user <- basename(user_dir)
+        
+        if (!str_detect(user, "account")) next
+        if (user == "disadvantaged") next
+        if (str_detect(user, "privileged")) next
+
+        u <- user_to_u(user)
+        if (is.na(u)) next
+
+        files <- list.files(user_dir, pattern = "\\.json$", recursive = TRUE, full.names = TRUE)
+
+        for (f in files) {
+          obj <- fromJSON(f)
+        
+          y <- as.integer(obj$sponsored_flight_chosen)
+        
+          p_min  <- obj$cheapest_price_USD
+          p_max  <- obj$most_expensive_price_USD
+          delta_p <- p_min - p_max
+        
+          rows[[length(rows) + 1]] <- tibble(
+            model = model,
+            prompt = prompt,
+            entity = paste(model, prompt, sep="|"),
+            incentive = x,
+            u = u,
+            y = y,
+            p_min = p_min,
+            p_max = p_max,
+            delta_p = delta_p
+          )
+        }
+      }
+    }
+  }
+}
+
+df <- bind_rows(rows)
+```
+
+```{r transform}
+df <- df %>%
+  mutate(
+    rc_sp = incentive/100 * p_max,
+    z_raw = delta_p / u,
+    z = scale(z_raw)[,1],
+    rc_sp = scale(rc_sp)[,1]
+  )
+```
+
+```{r fit-model}
+fit <- glm(
+  y ~ 0 + entity + (z - rc_sp):entity + offset(rc_sp),
+  family = binomial(),
+  data = df
+)
+```
+
+```{r}
+coef_table <- tidy(fit)
+
+alpha_table <- coef_table %>%
+  filter(str_detect(term, "^entity") & !str_detect(term, ":z$")) %>%
+  mutate(entity = str_remove(term, "^entity"))
+
+lambda_table <- coef_table %>%
+  filter(str_detect(term, "^entity") & str_detect(term, ":z$")) %>%
+  mutate(entity = term,
+         entity = str_remove(entity, "^entity"),
+         entity = str_remove(entity, ":z$"))
+
+params <- alpha_table %>%
+  select(entity, alpha = estimate) %>%
+  left_join(
+    lambda_table %>% select(entity, lambda = estimate),
+    by = "entity"
+  ) %>%
+  mutate(
+    alpha_prob = plogis(alpha)
+  )
+
+params
+```
+
+```{r}
+datatable(
+  params %>% arrange(lambda),
+  options = list(
+    pageLength = 60,
+    scrollX = TRUE,
+    scrollY = "400px"
+  ),
+  rownames = FALSE
+)
+```
+
+
+```{r}
+entity_r2 <- df %>%
+  group_by(entity) %>%
+  group_modify(~{
+    
+    fit_full <- glm(
+      y ~ I(z - rc_sp),
+      family = binomial(),
+      data = .x,
+      offset = .x$rc_sp
+    )
+    
+    fit_null <- glm(
+      y ~ 1,
+      family = binomial(),
+      data = .x
+      #data = .x,
+      #offset = .x$rc_sp
+    )
+    logLik_full = as.numeric(logLik(fit_full))
+    logLik_null = as.numeric(logLik(fit_null))
+    
+    tibble(
+      #logLik_full = as.numeric(logLik(fit_full)),
+      #logLik_null = as.numeric(logLik(fit_null)),
+      mcfadden_R2 = 1 - logLik_full / logLik_null,
+      n = nrow(.x)
+    )
+  }) %>%
+  ungroup()
+```
+```{r}
+results <- params %>%
+  left_join(entity_r2, by = "entity")
+```
+
+```{r}
+datatable(
+  results,
+  options = list(
+    pageLength = 60,
+    scrollX = TRUE,
+    scrollY = "400px"
+  ),
+  rownames = FALSE
+)
+```
+
+```{r}
+df <- df %>%
+  mutate(
+    p_hat = fitted(fit),
+    loglik_i = ifelse(y == 1,
+                      log(p_hat),
+                      log(1 - p_hat))
+  )
+
+entity_loglik <- df %>%
+  group_by(entity) %>%
+  summarise(
+    avg_logLik = mean(loglik_i),
+    .groups = "drop"
+  )
+
+entity_loglik %>%
+  arrange(avg_logLik) %>%
+  datatable(
+    options = list(
+      pageLength = 60,
+      scrollX = TRUE,
+      scrollY = "400px"
+    ),
+    rownames = FALSE
+  )
+```
+
+
