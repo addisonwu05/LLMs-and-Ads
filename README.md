@@ -2,9 +2,14 @@
 
 **COLM 2026**
 
-[Paper (arXiv)](https://arxiv.org/abs/2604.08525) | [Addison J. Wu](https://addisonwu05.github.io/)\*, [Ryan Liu](https://theryanl.github.io/)\*, [Shuyue Stella Li](https://stellalisy.com/), [Yulia Tsvetkov](https://homes.cs.washington.edu/~yuliats/), [Thomas L. Griffiths](https://cocosci.princeton.edu/tom/index.php)
+[![COLM 2026](https://img.shields.io/badge/COLM-2026-6f42c1)](https://colmweb.org/)
+[![arXiv](https://img.shields.io/badge/arXiv-2604.08525-b31b1b?logo=arxiv&logoColor=white)](https://arxiv.org/abs/2604.08525)
+
+[Addison J. Wu](https://addisonwu05.github.io/)\*, [Ryan Liu](https://theryanl.github.io/)\*, [Shuyue Stella Li](https://stellalisy.com/), [Yulia Tsvetkov](https://homes.cs.washington.edu/~yuliats/), [Thomas L. Griffiths](https://cocosci.princeton.edu/tom/index.php)
 
 \*Equal contribution
+
+**In the news:** [Hacks/Hackers](https://www.hackshackers.com/new-research-18-of-23-ai-models-prioritize-company-revenue-over-users-when-ads-enter-the-picture/) · [The Indian Express](https://indianexpress.com/article/explained/explained-ai/conflict-ai-users-expert-explains-10699921/) · Cited in [U.S. Senate Judiciary Committee testimony](https://www.judiciary.senate.gov/committee-activity/hearings/your-data-their-profit-the-consumer-cost-of-ai-surveillance-pricing)
 
 ![Teaser figure showing three conflict-of-interest scenarios](experiment_figure.png)
 
