@@ -2,8 +2,8 @@
 
 **COLM 2026**
 
-[![COLM 2026](https://img.shields.io/badge/COLM-2026-6f42c1)](https://colmweb.org/)
-[![arXiv](https://img.shields.io/badge/arXiv-2604.08525-b31b1b?logo=arxiv&logoColor=white)](https://arxiv.org/abs/2604.08525)
+[![COLM 2026](https://img.shields.io/badge/COLM-2026-6f42c1?style=for-the-badge)](https://colmweb.org/)
+[![Paper](https://img.shields.io/badge/paper-A42C25?style=for-the-badge&logo=arxiv&logoColor=white)](https://arxiv.org/abs/2604.08525)
 
 [Addison J. Wu](https://addisonwu05.github.io/)\*, [Ryan Liu](https://theryanl.github.io/)\*, [Shuyue Stella Li](https://stellalisy.com/), [Yulia Tsvetkov](https://homes.cs.washington.edu/~yuliats/), [Thomas L. Griffiths](https://cocosci.princeton.edu/tom/index.php)
 
