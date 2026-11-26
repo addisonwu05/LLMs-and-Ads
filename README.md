@@ -2,7 +2,7 @@
 
 **COLM 2026**
 
-[![COLM 2026](https://img.shields.io/badge/COLM-2026-6f42c1?style=for-the-badge&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABcAAAAgCAMAAADOixOHAAAAwFBMVEX///8AAAD///////////////////////////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADs9ti4AAAAMHRSTlP9AARVaK%2BKLtIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACMHliPAAAAqUlEQVR42q3RQQKEIAgFUPiCeP8TD6RmGu2GVj5QwQgsJMbgPQiwRlTOBIHh/koQavArQV2J6uktd0ByZ/lP/XRscbu85u2uRcoKuf2Mby%2BpM1BzzzewJzR3fDhby3xPtOWeQLnWTQ1luV/Rp4tHNV0%2Bh4hHHW1Pv8r6Y%2Bty31/HOf7pw31hTeOcmNOe7q0In%2B4LWLhf3OpW71eHe2v%2Bf0e1z1WMdPRp%2BgNvuwPxOQl26AAAAABJRU5ErkJggg%3D%3D)](https://colmweb.org/)
+<a href="https://colmweb.org/"><img src="assets/badges/colm.png" alt="COLM 2026" height="28"></a>
 [![Paper](https://img.shields.io/badge/paper-A42C25?style=for-the-badge&logo=arxiv&logoColor=white)](https://arxiv.org/abs/2604.08525)
 
 [Addison J. Wu](https://addisonwu05.github.io/)\*, [Ryan Liu](https://theryanl.github.io/)\*, [Shuyue Stella Li](https://stellalisy.com/), [Yulia Tsvetkov](https://homes.cs.washington.edu/~yuliats/), [Thomas L. Griffiths](https://cocosci.princeton.edu/tom/index.php)
