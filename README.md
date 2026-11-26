@@ -14,10 +14,13 @@
 
 **In the news:**
 
-<a href="https://www.hackshackers.com/new-research-18-of-23-ai-models-prioritize-company-revenue-over-users-when-ads-enter-the-picture/"><img src="assets/logos/hackshackers.png" alt="Hacks/Hackers" title="Hacks/Hackers" height="34"></a>
-<a href="https://indianexpress.com/article/explained/explained-ai/conflict-ai-users-expert-explains-10699921/"><img src="assets/logos/indianexpress.png" alt="The Indian Express" title="The Indian Express" height="24"></a>
+<a href="https://www.hackshackers.com/new-research-18-of-23-ai-models-prioritize-company-revenue-over-users-when-ads-enter-the-picture/"><img src="assets/logos/hackshackers.png" alt="Hacks/Hackers" title="Hacks/Hackers" height="32"></a>
+<a href="https://indianexpress.com/article/explained/explained-ai/conflict-ai-users-expert-explains-10699921/"><img src="assets/logos/indianexpress.png" alt="The Indian Express" title="The Indian Express" height="32"></a>
 
-**Cited in:** <a href="https://www.judiciary.senate.gov/committee-activity/hearings/your-data-their-profit-the-consumer-cost-of-ai-surveillance-pricing"><img src="assets/logos/senate.png" alt="U.S. Senate" title="U.S. Senate" height="34"></a> [U.S. Senate Judiciary Committee testimony](https://www.judiciary.senate.gov/committee-activity/hearings/your-data-their-profit-the-consumer-cost-of-ai-surveillance-pricing)
+**Cited in:**
+
+<a href="https://www.judiciary.senate.gov/committee-activity/hearings/your-data-their-profit-the-consumer-cost-of-ai-surveillance-pricing"><img src="assets/logos/senate.png" alt="U.S. Senate Judiciary Committee" title="U.S. Senate Judiciary Committee hearing" height="48"></a>
+<a href="https://www.judiciary.senate.gov/download/09/08/2026/2026-08-04-pm_testimony_owenspdf"><img src="assets/logos/groundwork.png" alt="Groundwork Collaborative" title="Groundwork Collaborative testimony (cites this paper)" height="48"></a>
 
 ![Teaser figure showing three conflict-of-interest scenarios](experiment_figure.png)
 
