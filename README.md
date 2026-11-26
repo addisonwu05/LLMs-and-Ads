@@ -2,14 +2,22 @@
 
 **COLM 2026**
 
-[![COLM 2026](https://img.shields.io/badge/COLM-2026-6f42c1?style=for-the-badge)](https://colmweb.org/)
+[![COLM 2026](https://img.shields.io/badge/COLM-2026-6f42c1?style=for-the-badge&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABcAAAAgCAMAAADOixOHAAAAwFBMVEX///8AAAD///////////////////////////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADs9ti4AAAAMHRSTlP9AARVaK%2BKLtIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACMHliPAAAAqUlEQVR42q3RQQKEIAgFUPiCeP8TD6RmGu2GVj5QwQgsJMbgPQiwRlTOBIHh/koQavArQV2J6uktd0ByZ/lP/XRscbu85u2uRcoKuf2Mby%2BpM1BzzzewJzR3fDhby3xPtOWeQLnWTQ1luV/Rp4tHNV0%2Bh4hHHW1Pv8r6Y%2Bty31/HOf7pw31hTeOcmNOe7q0In%2B4LWLhf3OpW71eHe2v%2Bf0e1z1WMdPRp%2BgNvuwPxOQl26AAAAABJRU5ErkJggg%3D%3D)](https://colmweb.org/)
 [![Paper](https://img.shields.io/badge/paper-A42C25?style=for-the-badge&logo=arxiv&logoColor=white)](https://arxiv.org/abs/2604.08525)
 
 [Addison J. Wu](https://addisonwu05.github.io/)\*, [Ryan Liu](https://theryanl.github.io/)\*, [Shuyue Stella Li](https://stellalisy.com/), [Yulia Tsvetkov](https://homes.cs.washington.edu/~yuliats/), [Thomas L. Griffiths](https://cocosci.princeton.edu/tom/index.php)
 
 \*Equal contribution
 
-**In the news:** [Hacks/Hackers](https://www.hackshackers.com/new-research-18-of-23-ai-models-prioritize-company-revenue-over-users-when-ads-enter-the-picture/) · [The Indian Express](https://indianexpress.com/article/explained/explained-ai/conflict-ai-users-expert-explains-10699921/) · Cited in [U.S. Senate Judiciary Committee testimony](https://www.judiciary.senate.gov/committee-activity/hearings/your-data-their-profit-the-consumer-cost-of-ai-surveillance-pricing)
+<img src="assets/logos/princeton.png" alt="Princeton University" height="44">&nbsp;&nbsp;
+<img src="assets/logos/uw.png" alt="University of Washington" height="44">
+
+**In the news:**
+
+<a href="https://www.hackshackers.com/new-research-18-of-23-ai-models-prioritize-company-revenue-over-users-when-ads-enter-the-picture/"><img src="assets/logos/hackshackers.png" alt="Hacks/Hackers" title="Hacks/Hackers" height="34"></a>
+<a href="https://indianexpress.com/article/explained/explained-ai/conflict-ai-users-expert-explains-10699921/"><img src="assets/logos/indianexpress.png" alt="The Indian Express" title="The Indian Express" height="24"></a>
+
+**Cited in:** <a href="https://www.judiciary.senate.gov/committee-activity/hearings/your-data-their-profit-the-consumer-cost-of-ai-surveillance-pricing"><img src="assets/logos/senate.png" alt="U.S. Senate" title="U.S. Senate" height="34"></a> [U.S. Senate Judiciary Committee testimony](https://www.judiciary.senate.gov/committee-activity/hearings/your-data-their-profit-the-consumer-cost-of-ai-surveillance-pricing)
 
 ![Teaser figure showing three conflict-of-interest scenarios](experiment_figure.png)
 
